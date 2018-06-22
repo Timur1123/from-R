@@ -1,0 +1,400 @@
+Новые вкутъстный - работающиее
+
+```{r}
+devtools::install_github('lyzander/RDota2')
+```
+
+
+```{r}
+library(RDota2)
+```
+
+```{r}
+key_actions(action = 'register_key', value = 'DDA04D6B0EC70AED26F0E3C7C313A98F')
+```
+
+	
+
+```{r}
+y=get_match_details(66, dota_id = 570, language = "en", key = NULL)
+```
+
+```{r}
+library(dplyr)
+```
+
+xxx=1
+
+```{r}
+z=get_match_history_by_sequence_num(start_at_match_seq_num = 3428945262+100*xxx, matches_requested = 100, dota_id = "570", language = "en", key = NULL)
+```
+
+
+
+
+```{r}
+for (xxx in 212:250) {
+
+z=get_match_history_by_sequence_num(start_at_match_seq_num = 3428945262+200*xxx, matches_requested = 100, dota_id = "570", language = "en", key = NULL)
+
+match_id = rep(0, 100)
+human_players= rep(0, 100)
+radiant_wit= rep(0, 100)
+lobby_type=rep(0, 100)
+game_mode=rep(0, 100)
+leagueid=rep(0, 100)
+h1= rep(0, 100)
+h2= rep(0, 100)
+h3= rep(0, 100)
+h4= rep(0, 100)
+h5= rep(0, 100)
+h6= rep(0, 100)
+h7= rep(0, 100)
+h8= rep(0, 100)
+h9= rep(0, 100)
+h10= rep(0, 100)
+
+for (i in 1:100) {
+ human_players[i]=z[["content"]][["matches"]][[i]][["human_players"]]
+  if ( human_players[i]==10){
+  radiant_wit[i]= z[["content"]][["matches"]][[i]][["radiant_win"]]
+  h1[i]= z[["content"]][["matches"]][[i]][["players"]][[1]][["hero_id"]]
+
+
+h2[i]= z[["content"]][["matches"]][[i]][["players"]][[2]][["hero_id"]]
+h3[i]= z[["content"]][["matches"]][[i]][["players"]][[3]][["hero_id"]]
+h4[i]= z[["content"]][["matches"]][[i]][["players"]][[4]][["hero_id"]]
+h5[i]= z[["content"]][["matches"]][[i]][["players"]][[5]][["hero_id"]]
+h6[i]= z[["content"]][["matches"]][[i]][["players"]][[6]][["hero_id"]]
+h7[i]= z[["content"]][["matches"]][[i]][["players"]][[7]][["hero_id"]]
+h8[i]= z[["content"]][["matches"]][[i]][["players"]][[8]][["hero_id"]]
+h9[i]= z[["content"]][["matches"]][[i]][["players"]][[9]][["hero_id"]]
+h10[i]= z[["content"]][["matches"]][[i]][["players"]][[10]][["hero_id"]]
+match_id[i]=z[["content"]][["matches"]][[i]][["match_id"]]
+lobby_type[i]=z[["content"]][["matches"]][[i]][["lobby_type"]]
+game_mode[i]= z[["content"]][["matches"]][[i]][["game_mode"]]
+leagueid[i]= z[["content"]][["matches"]][[i]][["leagueid"]]
+}
+}
+
+data_o<- data.frame(Match_id = match_id,Human_players=human_players, Radiant_wit = radiant_wit, Lobby_type = lobby_type,Game_mode=game_mode,Leagueid=leagueid,H1=h1,H2=h2,H3=h3,H4=h4,H5=h5,H6=h6,H7=h7,H8=h8,H9=h9,H10=h10)
+
+data_1=dplyr::bind_rows(data_o,data_1 )
+}
+```
+```{r}
+data2=data_1
+```
+
+
+```{r}
+d=unique(data2)
+
+```
+
+```{r}
+library(xlsx)
+write.xlsx(data_1, "data_full.xlsx")
+```
+
+
+Загрузим данные(почему то не загружается)
+```{r}
+library(readr)
+main_train <- read_csv("main_train.csv")
+```
+
+Установим пакеты
+```{r}
+library("dplyr")
+library("dummies")
+```
+
+R не тянет большой объём данных и сбоит, после того как народы схлынет можно будет запустить на всех данных.Выбираем 1001 матч,это 10010 наблюдений.
+```{r}
+mml=filter(main_train,match_id<=10000)
+```
+
+Создадим даммики на персоонажей
+
+```{r}
+mml0=mutate(mml,H=paste0(hero,"_",radiant))
+mml1=dummy(mml0$H)
+mml2=cbind(mml,mml1)
+```
+
+
+Перейдём к матчем
+```{r}
+mml3 = mml2 %>%
+group_by(match_id) %>%
+summarise(
+w=mean(radiant_win),
+
+`Abaddon_1`=sum(`HAbaddon_1`),
+`Abaddon_0`=sum(`HAbaddon_0`),
+`Alchemist_1`=sum(`HAlchemist_1`),
+`Alchemist_0`=sum(`HAlchemist_0`),
+`Ancient Apparition_1`=sum(`HAncient Apparition_1`),
+`Ancient Apparition_0`=sum(`HAncient Apparition_0`),
+`Anti-Mage_1`=sum(`HAnti-Mage_1`),
+`Anti-Mage_0`=sum(`HAnti-Mage_0`),
+`Axe_1`=sum(`HAxe_1`),
+`Axe_0`=sum(`HAxe_0`),
+`Bane_1`=sum(`HBane_1`),
+`Bane_0`=sum(`HBane_0`),
+`Batrider_1`=sum(`HBatrider_1`),
+`Batrider_0`=sum(`HBatrider_0`),
+`Beastmaster_1`=sum(`HBeastmaster_1`),
+`Beastmaster_0`=sum(`HBeastmaster_0`),
+`Bloodseeker_1`=sum(`HBloodseeker_1`),
+`Bloodseeker_0`=sum(`HBloodseeker_0`),
+`Bounty Hunter_1`=sum(`HBounty Hunter_1`),
+`Bounty Hunter_0`=sum(`HBounty Hunter_0`),
+`Brewmaster_1`=sum(`HBrewmaster_1`),
+`Brewmaster_0`=sum(`HBrewmaster_0`),
+`Bristleback_1`=sum(`HBristleback_1`),
+`Bristleback_0`=sum(`HBristleback_0`),
+`Broodmother_1`=sum(`HBroodmother_1`),
+`Broodmother_0`=sum(`HBroodmother_0`),
+`Centaur Warrunner_1`=sum(`HCentaur Warrunner_1`),
+`Centaur Warrunner_0`=sum(`HCentaur Warrunner_0`),
+`Chaos Knight_1`=sum(`HChaos Knight_1`),
+`Chaos Knight_0`=sum(`HChaos Knight_0`),
+`Chen_1`=sum(`HChen_1`),
+`Chen_0`=sum(`HChen_0`),
+`Clinkz_1`=sum(`HClinkz_1`),
+`Clinkz_0`=sum(`HClinkz_0`),
+`Clockwerk_1`=sum(`HClockwerk_1`),
+`Clockwerk_0`=sum(`HClockwerk_0`),
+`Crystal Maiden_1`=sum(`HCrystal Maiden_1`),
+`Crystal Maiden_0`=sum(`HCrystal Maiden_0`),
+`Dark Seer_1`=sum(`HDark Seer_1`),
+`Dark Seer_0`=sum(`HDark Seer_0`),
+`Dazzle_1`=sum(`HDazzle_1`),
+`Dazzle_0`=sum(`HDazzle_0`),
+`Death Prophet_1`=sum(`HDeath Prophet_1`),
+`Death Prophet_0`=sum(`HDeath Prophet_0`),
+`Disruptor_1`=sum(`HDisruptor_1`),
+`Disruptor_0`=sum(`HDisruptor_0`),
+`Doom_1`=sum(`HDoom_1`),
+`Doom_0`=sum(`HDoom_0`),
+`Dragon Knight_1`=sum(`HDragon Knight_1`),
+`Dragon Knight_0`=sum(`HDragon Knight_0`),
+`Drow Ranger_1`=sum(`HDrow Ranger_1`),
+`Drow Ranger_0`=sum(`HDrow Ranger_0`),
+`Earthshaker_1`=sum(`HEarthshaker_1`),
+`Earthshaker_0`=sum(`HEarthshaker_0`),
+`Earth Spirit_1`=sum(`HEarth Spirit_1`),
+`Earth Spirit_0`=sum(`HEarth Spirit_0`),
+`Elder Titan_1`=sum(`HElder Titan_1`),
+`Elder Titan_0`=sum(`HElder Titan_0`),
+`Ember Spirit_1`=sum(`HEmber Spirit_1`),
+`Ember Spirit_0`=sum(`HEmber Spirit_0`),
+`Enchantress_1`=sum(`HEnchantress_1`),
+`Enchantress_0`=sum(`HEnchantress_0`),
+`Enigma_1`=sum(`HEnigma_1`),
+`Enigma_0`=sum(`HEnigma_0`),
+`Faceless Void_1`=sum(`HFaceless Void_1`),
+`Faceless Void_0`=sum(`HFaceless Void_0`),
+`Gyrocopter_1`=sum(`HGyrocopter_1`),
+`Gyrocopter_0`=sum(`HGyrocopter_0`),
+`Huskar_1`=sum(`HHuskar_1`),
+`Huskar_0`=sum(`HHuskar_0`),
+`Invoker_1`=sum(`HInvoker_1`),
+`Invoker_0`=sum(`HInvoker_0`),
+`Io_1`=sum(`HIo_1`),
+`Io_0`=sum(`HIo_0`),
+`Jakiro_1`=sum(`HJakiro_1`),
+`Jakiro_0`=sum(`HJakiro_0`),
+`Juggernaut_1`=sum(`HJuggernaut_1`),
+`Juggernaut_0`=sum(`HJuggernaut_0`),
+`Keeper of the Light_1`=sum(`HKeeper of the Light_1`),
+`Keeper of the Light_0`=sum(`HKeeper of the Light_0`),
+`Kunkka_1`=sum(`HKunkka_1`),
+`Kunkka_0`=sum(`HKunkka_0`),
+`Legion Commander_1`=sum(`HLegion Commander_1`),
+`Legion Commander_0`=sum(`HLegion Commander_0`),
+`Leshrac_1`=sum(`HLeshrac_1`),
+`Leshrac_0`=sum(`HLeshrac_0`),
+`Lich_1`=sum(`HLich_1`),
+`Lich_0`=sum(`HLich_0`),
+`Lifestealer_1`=sum(`HLifestealer_1`),
+`Lifestealer_0`=sum(`HLifestealer_0`),
+`Lina_1`=sum(`HLina_1`),
+`Lina_0`=sum(`HLina_0`),
+`Lion_1`=sum(`HLion_1`),
+`Lion_0`=sum(`HLion_0`),
+`Lone Druid_1`=sum(`HLone Druid_1`),
+`Lone Druid_0`=sum(`HLone Druid_0`),
+`Luna_1`=sum(`HLuna_1`),
+`Luna_0`=sum(`HLuna_0`),
+`Lycan_1`=sum(`HLycan_1`),
+`Lycan_0`=sum(`HLycan_0`),
+`Magnus_1`=sum(`HMagnus_1`),
+`Magnus_0`=sum(`HMagnus_0`),
+`Medusa_1`=sum(`HMedusa_1`),
+`Medusa_0`=sum(`HMedusa_0`),
+`Meepo_1`=sum(`HMeepo_1`),
+`Meepo_0`=sum(`HMeepo_0`),
+`Mirana_1`=sum(`HMirana_1`),
+`Mirana_0`=sum(`HMirana_0`),
+`Morphling_1`=sum(`HMorphling_1`),
+`Morphling_0`=sum(`HMorphling_0`),
+`Naga Siren_1`=sum(`HNaga Siren_1`),
+`Naga Siren_0`=sum(`HNaga Siren_0`),
+`Nature's Prophet_1`=sum(`HNature's Prophet_1`),
+`Nature's Prophet_0`=sum(`HNature's Prophet_0`),
+`Necrophos_1`=sum(`HNecrophos_1`),
+`Necrophos_0`=sum(`HNecrophos_0`),
+`Night Stalker_1`=sum(`HNight Stalker_1`),
+`Night Stalker_0`=sum(`HNight Stalker_0`),
+`Nyx Assassin_1`=sum(`HNyx Assassin_1`),
+`Nyx Assassin_0`=sum(`HNyx Assassin_0`),
+`Ogre Magi_1`=sum(`HOgre Magi_1`),
+`Ogre Magi_0`=sum(`HOgre Magi_0`),
+`Omniknight_1`=sum(`HOmniknight_1`),
+`Omniknight_0`=sum(`HOmniknight_0`),
+`Oracle_1`=sum(`HOracle_1`),
+`Oracle_0`=sum(`HOracle_0`),
+`Outworld Devourer_1`=sum(`HOutworld Devourer_1`),
+`Outworld Devourer_0`=sum(`HOutworld Devourer_0`),
+`Phantom Assassin_1`=sum(`HPhantom Assassin_1`),
+`Phantom Assassin_0`=sum(`HPhantom Assassin_0`),
+`Phantom Lancer_1`=sum(`HPhantom Lancer_1`),
+`Phantom Lancer_0`=sum(`HPhantom Lancer_0`),
+`Phoenix_1`=sum(`HPhoenix_1`),
+`Phoenix_0`=sum(`HPhoenix_0`),
+`Puck_1`=sum(`HPuck_1`),
+`Puck_0`=sum(`HPuck_0`),
+`Pudge_1`=sum(`HPudge_1`),
+`Pudge_0`=sum(`HPudge_0`),
+`Pugna_1`=sum(`HPugna_1`),
+`Pugna_0`=sum(`HPugna_0`),
+`Queen of Pain_1`=sum(`HQueen of Pain_1`),
+`Queen of Pain_0`=sum(`HQueen of Pain_0`),
+`Razor_1`=sum(`HRazor_1`),
+`Razor_0`=sum(`HRazor_0`),
+`Riki_1`=sum(`HRiki_1`),
+`Riki_0`=sum(`HRiki_0`),
+`Rubick_1`=sum(`HRubick_1`),
+`Rubick_0`=sum(`HRubick_0`),
+`Sand King_1`=sum(`HSand King_1`),
+`Sand King_0`=sum(`HSand King_0`),
+`Shadow Demon_1`=sum(`HShadow Demon_1`),
+`Shadow Demon_0`=sum(`HShadow Demon_0`),
+`Shadow Fiend_1`=sum(`HShadow Fiend_1`),
+`Shadow Fiend_0`=sum(`HShadow Fiend_0`),
+`Shadow Shaman_1`=sum(`HShadow Shaman_1`),
+`Shadow Shaman_0`=sum(`HShadow Shaman_0`),
+`Silencer_1`=sum(`HSilencer_1`),
+`Silencer_0`=sum(`HSilencer_0`),
+`Skywrath Mage_1`=sum(`HSkywrath Mage_1`),
+`Skywrath Mage_0`=sum(`HSkywrath Mage_0`),
+`Slardar_1`=sum(`HSlardar_1`),
+`Slardar_0`=sum(`HSlardar_0`),
+`Slark_1`=sum(`HSlark_1`),
+`Slark_0`=sum(`HSlark_0`),
+`Sniper_1`=sum(`HSniper_1`),
+`Sniper_0`=sum(`HSniper_0`),
+`Spectre_1`=sum(`HSpectre_1`),
+`Spectre_0`=sum(`HSpectre_0`),
+`Spirit Breaker_1`=sum(`HSpirit Breaker_1`),
+`Spirit Breaker_0`=sum(`HSpirit Breaker_0`),
+`Storm Spirit_1`=sum(`HStorm Spirit_1`),
+`Storm Spirit_0`=sum(`HStorm Spirit_0`),
+`Sven_1`=sum(`HSven_1`),
+`Sven_0`=sum(`HSven_0`),
+`Techies_1`=sum(`HTechies_1`),
+`Techies_0`=sum(`HTechies_0`),
+`Templar Assassin_1`=sum(`HTemplar Assassin_1`),
+`Templar Assassin_0`=sum(`HTemplar Assassin_0`),
+`Terrorblade_1`=sum(`HTerrorblade_1`),
+`Terrorblade_0`=sum(`HTerrorblade_0`),
+`Tidehunter_1`=sum(`HTidehunter_1`),
+`Tidehunter_0`=sum(`HTidehunter_0`),
+`Timbersaw_1`=sum(`HTimbersaw_1`),
+`Timbersaw_0`=sum(`HTimbersaw_0`),
+`Tinker_1`=sum(`HTinker_1`),
+`Tinker_0`=sum(`HTinker_0`),
+`Tiny_1`=sum(`HTiny_1`),
+`Tiny_0`=sum(`HTiny_0`),
+`Treant Protector_1`=sum(`HTreant Protector_1`),
+`Treant Protector_0`=sum(`HTreant Protector_0`),
+`Troll Warlord_1`=sum(`HTroll Warlord_1`),
+`Troll Warlord_0`=sum(`HTroll Warlord_0`),
+`Tusk_1`=sum(`HTusk_1`),
+`Tusk_0`=sum(`HTusk_0`),
+`Undying_1`=sum(`HUndying_1`),
+`Undying_0`=sum(`HUndying_0`),
+`Ursa_1`=sum(`HUrsa_1`),
+`Ursa_0`=sum(`HUrsa_0`),
+`Vengeful Spirit_1`=sum(`HVengeful Spirit_1`),
+`Vengeful Spirit_0`=sum(`HVengeful Spirit_0`),
+`Venomancer_1`=sum(`HVenomancer_1`),
+`Venomancer_0`=sum(`HVenomancer_0`),
+`Viper_1`=sum(`HViper_1`),
+`Viper_0`=sum(`HViper_0`),
+`Visage_1`=sum(`HVisage_1`),
+`Visage_0`=sum(`HVisage_0`),
+`Warlock_1`=sum(`HWarlock_1`),
+`Warlock_0`=sum(`HWarlock_0`),
+`Weaver_1`=sum(`HWeaver_1`),
+`Weaver_0`=sum(`HWeaver_0`),
+`Windranger_1`=sum(`HWindranger_1`),
+`Windranger_0`=sum(`HWindranger_0`),
+`Winter Wyvern_1`=sum(`HWinter Wyvern_1`),
+`Winter Wyvern_0`=sum(`HWinter Wyvern_0`),
+`Witch Doctor_1`=sum(`HWitch Doctor_1`),
+`Witch Doctor_0`=sum(`HWitch Doctor_0`),
+`Wraith King_1`=sum(`HWraith King_1`),
+`Wraith King_0`=sum(`HWraith King_0`),
+`Zeus_1`=sum(`HZeus_1`),
+`Zeus_0`=sum(`HZeus_0`)
+
+
+) 
+mml3=select(mml3,-match_id)
+```
+
+```{r}
+m.logit <- glm(w ~., data = mml3, x = TRUE, family = binomial(link = "logit"))
+```
+
+
+```{r}
+
+save(m.logit, file="v3.RData")
+```
+
+```{r}
+saveRDS(m.logit, file="v2.rds")
+```
+
+```{r}
+readRDS(model_0_2.rds)
+```
+
+
+```{r}
+mml_pr=filter(main_train,match_id>=1000 & match_id<=1000)
+```
+
+Создадим даммики на персоонажей
+
+```{r}
+mml0_pr=mutate(mml_pr,H=paste0(hero,"_",radiant))
+mml1_pr=dummy(mml0_pr$H)
+mml2_pr=cbind(mml_pr,mml1_pr)
+```
+
+Перейдём к матчем
+
+
+
+Предскажем победу
+```{r}
+predict(m.logit, p1, type = "response")
+```
+
+
